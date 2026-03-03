@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CT Duty Roster - March 2026</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0f172a; color: #f1f5f9; min-height: 100vh; padding: 20px; }
+header { text-align: center; margin-bottom: 24px; }
+header h1 { font-size: 1.4rem; font-weight: 700; color: #38bdf8; }
+header p { font-size: 0.8rem; color: #94a3b8; margin-top: 4px; }
+.today-card { background: linear-gradient(135deg, #0ea5e9, #6366f1); border-radius: 16px; padding: 20px; margin-bottom: 24px; box-shadow: 0 8px 32px rgba(14,165,233,0.3); }
+.today-card .label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.85; margin-bottom: 4px; }
+.today-card .date-line { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; }
+.shift-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.shift-pill { background: rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 14px; flex: 1; min-width: 130px; }
+.shift-pill .shift-name { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.7px; opacity: 0.85; margin-bottom: 4px; }
+.shift-pill .doctor-name { font-size: 0.95rem; font-weight: 600; }
+.search-bar { margin-bottom: 16px; }
+.search-bar input { width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 10px 14px; color: #f1f5f9; font-size: 0.9rem; outline: none; }
+.search-bar input:focus { border-color: #38bdf8; }
+.search-bar input::placeholder { color: #475569; }
+.table-wrap { border-radius: 12px; overflow: hidden; border: 1px solid #1e293b; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 620px; }
+thead tr { background: #1e293b; color: #94a3b8; font-size: 0.65rem; text-transform: uppercase; }
+thead th { padding: 10px 12px; text-align: left; line-height: 1.5; }
+tbody tr { border-bottom: 1px solid #1e293b; transition: background 0.15s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: #1e293b; }
+tbody tr.today-row { background: rgba(14,165,233,0.12); }
+tbody tr.today-row td { color: #38bdf8; font-weight: 600; }
+tbody td { padding: 9px 12px; vertical-align: top; }
+.day-badge { display: inline-block; font-size: 0.65rem; padding: 1px 6px; border-radius: 4px; background: #1e3a5f; color: #7dd3fc; }
+.day-badge.sunday { background: #3b1f2b; color: #f9a8d4; }
+.day-badge.saturday { background: #2d2b3b; color: #c4b5fd; }
+.highlight { background: #fef08a; color: #0f172a; border-radius: 2px; padding: 0 2px; }
+.footer { text-align: center; margin-top: 20px; font-size: 0.72rem; color: #475569; }
+</style>
+</head>
+<body>
+<header>
+  <h1>&#127973; CT Duty Roster &mdash; March 2026</h1>
+  <p>Dept. of Radiodiagnosis &amp; Interventional Radiology, Safdarjung Hospital</p>
+</header>
+<div class="today-card">
+  <div class="label">Today on Duty</div>
+  <div class="date-line" id="todayDateLine">&mdash;</div>
+  <div class="shift-row" id="todayShifts"></div>
+</div>
+<div class="search-bar">
+  <input type="text" id="searchInput" placeholder="Search by date or doctor name..." oninput="renderTable()">
+</div>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Day</th>
+        <th>CT Daytime<br><span style="font-weight:400;opacity:0.7;font-size:0.6rem">Mon-Fri 4-9PM / Sat 1-9PM / Sun &amp; Hol 9AM-9PM</span></th>
+        <th>CT Night<br><span style="font-weight:400;opacity:0.7;font-size:0.6rem">9PM to 9AM Next Day</span></th>
+        
+      </tr>
+    </thead>
+    <tbody id="rosterBody"></tbody>
+  </table>
+</div>
+<div class="footer">Auto-highlights today &bull; Search any doctor name to see all their duties</div>
+<script>
+var roster = [
+  {date:"01-03-26",day:"Sun",ct_day:"Dr Amol",ct_night:"Dr Anant"},
+  {date:"02-03-26",day:"Mon",ct_day:"Dr Abhishek",ct_night:"Dr Arushi"},
+  {date:"03-03-26",day:"Tue",ct_day:"Dr Aditi",ct_night:"Dr Tanya"},
+  {date:"04-03-26",day:"Wed",ct_day:"Dr Azhar",ct_night:"Dr Anant"},
+  {date:"05-03-26",day:"Thu",ct_day:"Dr Preetish",ct_night:"Dr Arvinth AM"},
+  {date:"06-03-26",day:"Fri",ct_day:"Dr Rajat",ct_night:"Dr Shalini"},
+  {date:"07-03-26",day:"Sat",ct_day:"Dr Neha",ct_night:"Dr Ashwini"},
+  {date:"08-03-26",day:"Sun",ct_day:"Dr Shubham",ct_night:"Dr Pooja"},
+  {date:"09-03-26",day:"Mon",ct_day:"Dr Anant",ct_night:"Dr Azhar"},
+  {date:"10-03-26",day:"Tue",ct_day:"Dr Hanny",ct_night:"Dr Amol"},
+  {date:"11-03-26",day:"Wed",ct_day:"Dr Kunal",ct_night:"Dr Neha"},
+  {date:"12-03-26",day:"Thu",ct_day:"Dr Manisha",ct_night:"Dr Ashwini"},
+  {date:"13-03-26",day:"Fri",ct_day:"Dr Dhanraj",ct_night:"Dr Pooja"},
+  {date:"14-03-26",day:"Sat",ct_day:"Dr Tanya",ct_night:"Dr Kunal"},
+  {date:"15-03-26",day:"Sun",ct_day:"Dr Hanny",ct_night:"Dr Aashish"},
+  {date:"16-03-26",day:"Mon",ct_day:"Dr Narender",ct_night:"Dr Hanny"},
+  {date:"17-03-26",day:"Tue",ct_day:"Dr Arushi",ct_night:"Dr Saumya"},
+  {date:"18-03-26",day:"Wed",ct_day:"Dr Pooja",ct_night:"Dr Narender"},
+  {date:"19-03-26",day:"Thu",ct_day:"Dr Shalini",ct_night:"Dr Neha"},
+  {date:"20-03-26",day:"Fri",ct_day:"Dr Saumya",ct_night:"Dr Tanya"},
+  {date:"21-03-26",day:"Sat",ct_day:"Dr Amol",ct_night:"Dr Aditi"},
+  {date:"22-03-26",day:"Sun",ct_day:"Dr Saumya",ct_night:"Dr Dhanraj"},
+  {date:"23-03-26",day:"Mon",ct_day:"Dr Aashish",ct_night:"Dr Arvinth AM"},
+  {date:"24-03-26",day:"Tue",ct_day:"Dr Shivam",ct_night:"Dr Aditi"},
+  {date:"25-03-26",day:"Wed",ct_day:"Dr Tenzen",ct_night:"Dr Arushi"},
+  {date:"26-03-26",day:"Thu",ct_day:"Dr Shivam",ct_night:"Dr Kunal"},
+  {date:"27-03-26",day:"Fri",ct_day:"Dr Rajat",ct_night:"Dr Shalini"},
+  {date:"28-03-26",day:"Sat",ct_day:"Dr Azhar",ct_night:"Dr Dhanraj"},
+  {date:"29-03-26",day:"Sun",ct_day:"Dr Narender",ct_night:"Dr Aashish"},
+  {date:"30-03-26",day:"Mon",ct_day:"Dr Arvinth AM",ct_night:"Dr Shivam"},
+  {date:"31-03-26",day:"Tue",ct_day:"Dr Ashwini",ct_night:"Dr Rajat"}
+];
+
+var phones = {
+  "Dr Shubham":"917065118830","Dr Sameer":"917417007674","Dr Vasundhara":"919868712195",
+  "Dr Raveena":"918826010384","Dr Pamposh":"918105637395","Dr Apurva":"919448262056",
+  "Dr Sahitya":"919541352737","Dr Pooja":"919069152160","Dr Pooja Agr":"918950349634",
+  "Dr Arfi":"918755204787","Dr Manisha":"917677237559","Dr Tenzen":"917780929371",
+  "Dr Abhishek":"918955455017","Dr Preetish":"919964212217","Dr Narender":"918764253822",
+  "Dr Rajat":"919547529727","Dr Hanny":"918708069535","Dr Aditi":"919643254106",
+  "Dr Dhanraj":"919444809915","Dr Tanya":"919958158675","Dr Anant":"918800883887",
+  "Dr Saumya":"919045395038","Dr Arushi":"919910029840","Dr Kunal":"918878867862",
+  "Dr Shalini":"918429192689","Dr Neha":"918709714638","Dr Arvinth AM":"919894172444",
+  "Dr Aashish":"919473972701","Dr Azhar":"918445544525","Dr Shivam":"919739673185",
+  "Dr Ashwini":"919591239423","Dr Amol":"918319417230"
+};
+function waBtn(name,big){
+  var num=phones[name];if(!num)return'';
+  var style=big?'display:inline-flex;align-items:center;gap:4px;background:#25D366;color:#fff;font-size:0.72rem;padding:5px 12px;border-radius:20px;text-decoration:none;font-weight:600;margin-top:8px':'display:inline-flex;align-items:center;gap:3px;background:#25D366;color:#fff;font-size:0.6rem;padding:2px 7px;border-radius:20px;text-decoration:none;font-weight:600;vertical-align:middle;margin-left:5px';
+  return '<a href="https://wa.me/'+num+'?text=Stroke%20on%20Neurovascular%20group%20-%20Please%20update%20CT%20ASPECTS%2Fangio%20findings" target="_blank" style="'+style+'">&#128222; '+(big?'WhatsApp':'WA')+'</a>';
+}
+
+function getTodayKey(){var n=new Date();return String(n.getDate()).padStart(2,"0")+"-"+String(n.getMonth()+1).padStart(2,"0")+"-"+String(n.getFullYear()).slice(-2);}
+function hl(t,q){if(!q)return t;var re=new RegExp("("+q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","gi");return t.replace(re,"<span class=\"highlight\">$1</span>");}
+function renderToday(){
+  var key=getTodayKey(),e=roster.find(function(r){return r.date===key;});
+  var dl=document.getElementById("todayDateLine"),sd=document.getElementById("todayShifts");
+  if(!e){dl.textContent="No data for today";return;}
+  var lbl=e.day==="Sun"?"9AM-9PM":e.day==="Sat"?"1PM-9PM":"4PM-9PM";
+  dl.textContent=e.day+", "+e.date.replace(/-26$/," 2026");
+  sd.innerHTML="<div class=\"shift-pill\"><div class=\"shift-name\">CT Daytime ("+lbl+")</div><div class=\"doctor-name\">"+e.ct_day+"</div></div>"
+    +"<div class=\"shift-pill\"><div class=\"shift-name\">CT Night (9PM to 9AM)</div><div class=\"doctor-name\">"+e.ct_night+"</div></div>"
+    ;
+}
+function renderTable(){
+  var q=document.getElementById("searchInput").value.trim().toLowerCase(),key=getTodayKey();
+  var f=roster.filter(function(r){return !q||r.date.toLowerCase().includes(q)||r.day.toLowerCase().includes(q)||r.ct_day.toLowerCase().includes(q)||r.ct_night.toLowerCase().includes(q);});
+  document.getElementById("rosterBody").innerHTML=f.map(function(r){
+    var it=r.date===key,dc=r.day==="Sun"?"sunday":r.day==="Sat"?"saturday":"";
+    return "<tr class=\""+( it?"today-row":"")+"\">"
+      +"<td>"+hl(r.date,q)+(it?" <span style=\"font-size:0.7rem\">today</span>":"")+"</td>"
+      +"<td><span class=\"day-badge "+dc+"\">"+r.day+"</span></td>"
+      +"<td>"+hl(r.ct_day,q)+waBtn(r.ct_day,false)+"</td>"
+      +"<td>"+hl(r.ct_night,q)+waBtn(r.ct_night,false)+"</td>"
+      +"</tr>";
+  }).join("");
+}
+renderToday();renderTable();
+</script>
+</body>
+</html>
