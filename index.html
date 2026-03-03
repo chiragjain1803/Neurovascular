@@ -22,15 +22,15 @@ header p { font-size: 0.8rem; color: #94a3b8; margin-top: 4px; }
 .search-bar input:focus { border-color: #38bdf8; }
 .search-bar input::placeholder { color: #475569; }
 .table-wrap { border-radius: 12px; overflow: hidden; border: 1px solid #1e293b; overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 620px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 360px; }
 thead tr { background: #1e293b; color: #94a3b8; font-size: 0.65rem; text-transform: uppercase; }
-thead th { padding: 10px 12px; text-align: left; line-height: 1.5; }
+thead th { padding: 7px 8px; text-align: left; line-height: 1.4; white-space: nowrap; }
 tbody tr { border-bottom: 1px solid #1e293b; transition: background 0.15s; }
 tbody tr:last-child { border-bottom: none; }
 tbody tr:hover { background: #1e293b; }
 tbody tr.today-row { background: rgba(14,165,233,0.12); }
 tbody tr.today-row td { color: #38bdf8; font-weight: 600; }
-tbody td { padding: 9px 12px; vertical-align: top; }
+tbody td { padding: 6px 8px; vertical-align: middle; white-space: nowrap; }
 .day-badge { display: inline-block; font-size: 0.65rem; padding: 1px 6px; border-radius: 4px; background: #1e3a5f; color: #7dd3fc; }
 .day-badge.sunday { background: #3b1f2b; color: #f9a8d4; }
 .day-badge.saturday { background: #2d2b3b; color: #c4b5fd; }
@@ -116,7 +116,7 @@ var phones = {
 };
 function waBtn(name,big){
   var num=phones[name];if(!num)return'';
-  var style=big?'display:inline-flex;align-items:center;gap:4px;background:#25D366;color:#fff;font-size:0.72rem;padding:5px 12px;border-radius:20px;text-decoration:none;font-weight:600;margin-top:8px':'display:inline-flex;align-items:center;gap:3px;background:#25D366;color:#fff;font-size:0.6rem;padding:2px 7px;border-radius:20px;text-decoration:none;font-weight:600;vertical-align:middle;margin-left:5px';
+  var style=big?'display:inline-flex;align-items:center;gap:4px;background:#25D366;color:#fff;font-size:0.72rem;padding:5px 12px;border-radius:20px;text-decoration:none;font-weight:600;margin-left:6px':'display:inline-flex;align-items:center;gap:3px;background:#25D366;color:#fff;font-size:0.6rem;padding:2px 7px;border-radius:20px;text-decoration:none;font-weight:600;vertical-align:middle;margin-left:5px';
   return '<a href="https://wa.me/'+num+'?text=Stroke%20on%20Neurovascular%20group%20-%20Please%20update%20CT%20ASPECTS%2Fangio%20findings" target="_blank" style="'+style+'">&#128222; '+(big?'WhatsApp':'WA')+'</a>';
 }
 
@@ -128,8 +128,8 @@ function renderToday(){
   if(!e){dl.textContent="No data for today";return;}
   var lbl=e.day==="Sun"?"9AM-9PM":e.day==="Sat"?"1PM-9PM":"4PM-9PM";
   dl.textContent=e.day+", "+e.date.replace(/-26$/," 2026");
-  sd.innerHTML="<div class=\"shift-pill\"><div class=\"shift-name\">CT Daytime ("+lbl+")</div><div class=\"doctor-name\">"+e.ct_day+"</div></div>"
-    +"<div class=\"shift-pill\"><div class=\"shift-name\">CT Night (9PM to 9AM)</div><div class=\"doctor-name\">"+e.ct_night+"</div></div>"
+  sd.innerHTML="<div class=\"shift-pill\"><div class=\"shift-name\">CT Daytime ("+lbl+")</div><div style=\"display:flex;align-items:center;gap:8px\"><b>"+e.ct_day+"</b>"+waBtn(e.ct_day,true)+"</div></div>"
+    +"<div class=\"shift-pill\"><div class=\"shift-name\">CT Night (9PM&rarr;9AM)</div><div style=\"display:flex;align-items:center;gap:8px\"><b>"+e.ct_night+"</b>"+waBtn(e.ct_night,true)+"</div></div>"
     ;
 }
 function renderTable(){
